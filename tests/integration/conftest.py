@@ -6,6 +6,8 @@ import os
 import platform
 import subprocess
 from typing import Generator
+from unittest.mock import patch
+from fakeredis import FakeRedis, FakeServer
 import pytest
 from yaptide.admin.simulator_storage import download_shieldhit_from_s3_or_from_website
 
@@ -272,3 +274,9 @@ def live_server_win():
         yield server
     finally:
         server.terminate()
+
+@pytest.fixture(scope="function")
+def fake_redis(monkeypatch):
+    fake = FakeRedis(server=FakeServer())
+    monkeypatch.setattr("yaptide.redis.redis.redis_client",  fake)
+    yield fake 
